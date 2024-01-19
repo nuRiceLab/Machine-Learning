@@ -23,7 +23,7 @@ def process_files(directory, output):
                 fmap = open(file_path, 'rb').read()
                 pixels_map = np.frombuffer(zlib.decompress(fmap), dtype=np.uint8)
                 pixels_map = pixels_map.reshape(3, 200, 200) # Adjust dimensions as needed       
-                hdf.create_dataset(f'map_{filename}', data=pixels_map)
+                hdf.create_dataset(f'map_{filename}', data=pixels_map, compression="gzip", compression_opts=9)
 
 def main():
     parser = argparse.ArgumentParser(description="Process files and store in HDF5 format.")
