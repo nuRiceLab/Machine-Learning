@@ -1,7 +1,7 @@
 import h5py
 
 # Replace 'your_file.h5' with the path to your HDF5 file
-file_path = 'test2.h5'
+file_path = 'test_subset.h5'
 
 # Open the file in read mode ('r')
 with h5py.File(file_path, 'r') as hdf:

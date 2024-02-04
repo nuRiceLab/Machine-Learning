@@ -27,8 +27,8 @@ def process_files(directory, output):
 
 def main():
     parser = argparse.ArgumentParser(description="Process files and store in HDF5 format.")
-    parser.add_argument("directory", type=str, help="Directory containing the files to process")
-    parser.add_argument("output", type=str, help="output file name")
+    parser.add_argument("--directory", type=str, help="Directory containing the files to process")
+    parser.add_argument("--output", type=str, help="output file name")
     args = parser.parse_args()
 
     process_files(args.directory, args.output)
