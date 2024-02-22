@@ -9,7 +9,7 @@ from tensorflow.keras import datasets, layers, models, optimizers, callbacks, lo
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 import keras.backend as K
 import os
-from generator_class_atmo_3output import DataGenerator_3output
+from generator_class_multi_1226 import DataGenerator_3output_train, DataGenerator_3output_test
 from tensorflow.keras.optimizers import SGD
 import json
 import tqdm
@@ -132,8 +132,8 @@ if __name__ == "__main__":
     for dff in [df, dftest]:
         dff['pions'] = np.clip(dff['pions'], 0, 1) 
     
-    generator = DataGenerator_3output(df, **params)
-    test_generator = DataGenerator_3output(dftest, **params)
+    generator = DataGenerator_3output_train(df, **params)
+    test_generator = DataGenerator_3output_test(dftest, **params)
     
     partition = {'train': df.iloc[:int(.83*len(df))], 'validation': df.iloc[int(.83*len(df)):]}
     print(f"Number of pixel maps for training {len(partition['train'])} and for validation {len(partition['validation'])}")
@@ -185,9 +185,9 @@ if __name__ == "__main__":
                      {0: 1.0, 1: 3.5741821962728944, 2: 9.080158488265772, 3: 8.89313432835821},
                      ]
     #more specific to 3 output problem 
-    class_weights = [{0: 1.48, 1: 1.0, 2: 1.18},
-                     {0: 1.31, 1: 1.0, 2: 3., 3: 5.},
-                     {0: 1.0, 1: 2.},
+    class_weights = [{0: 1.48/(1.48+1+1.18), 1: 1./(1.48+1+1.18), 2: 1.18/(1.48+1+1.18)},
+                     {0: 1.31/(1.31+1+3+5), 1: 1./(1.31+1+3+5), 2: 3./(1.31+1+3+5), 3: 5./(1.31+1+3+5)},
+                     {0: 1./(1.+2), 1: 2./(1+2.)},
                      ]
     
     class_weights_tensors = [tf.constant(list(weights.values()), dtype=tf.float32) for weights in class_weights]
@@ -215,8 +215,8 @@ if __name__ == "__main__":
                                restore_best_weights=True,
                                    )
     
-    train_generator = DataGenerator_3output(partition['train'], **params)
-    validation_generator = DataGenerator_3output(partition['validation'], **params)
+    train_generator = DataGenerator_3output_train(partition['train'], **params)
+    validation_generator = DataGenerator_3output_train(partition['validation'], **params)
     sgd_optimizer = SGD(learning_rate=args.learning_rate, momentum=0.9)
     
     model.compile(optimizer=sgd_optimizer,
