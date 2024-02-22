@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow.keras import datasets, layers, models, optimizers, callbacks
 from tensorflow.keras.callbacks import ModelCheckpoint
 import os
-from generator_class import DataGenerator
+from generator_class_old import DataGenerator
 from tensorflow.keras.optimizers import SGD
 import json
 import argparse

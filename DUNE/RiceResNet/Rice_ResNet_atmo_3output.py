@@ -9,7 +9,7 @@ from tensorflow.keras import datasets, layers, models, optimizers, callbacks, lo
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 import keras.backend as K
 import os
-from generator_class_multi_1226 import DataGenerator_3output_train, DataGenerator_3output_test
+from generator_class_atmo_3output import DataGenerator_3output_train, DataGenerator_3output_test
 from tensorflow.keras.optimizers import SGD
 import json
 import tqdm

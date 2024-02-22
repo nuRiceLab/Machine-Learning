@@ -26,7 +26,8 @@ class WeightedSCCE(losses.Loss):
         # Compute the mean loss across batch dimensions
         return tf.reduce_mean(loss)
 
-class WeightedSCCE_for_saving(losses.Loss):
+class WeightedSCCE_for_resaving(losses.Loss):
+    # attempting to add/remove some variables to try to get it to save/load ok. You should not need this to train or evaluate the model though. 
     def __init__(self, class_weight=None, from_logits=False, reduction=losses.Reduction.NONE, name='weighted_scce'):
         super().__init__(reduction=reduction, name=name)
         if class_weight is None or all(v == 1. for v in class_weight):
