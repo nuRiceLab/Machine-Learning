@@ -1,0 +1,74 @@
+lines.linewidth   : 1.5     # line width in points
+lines.linestyle   : solid       # solid line
+lines.marker      : None    # the default marker
+lines.markeredgewidth  : 1     # the line width around the marker symbol
+lines.markersize  : 5            # markersize, in points
+
+
+font.family         : serif
+font.size           : 14
+font.serif          : cm, Times, DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+text.usetex         : False
+
+axes.linewidth      : 1     # edge linewidth
+axes.titlesize      : 12   # fontsize of the axes title
+axes.labelsize      : 13 # fontsize of the x any y labels
+axes.prop_cycle : cycler('color', ['navy', 'crimson', 'teal', 'darkorange', 'purple', 'green', 'brown', 'cyan', 'maroon'])
+# axes.prop_cycle : cycler('marker', ['d','s','o','^'])
+
+xtick.top            : False   # draw ticks on the top side
+xtick.bottom         : True   # draw ticks on the bottom side
+xtick.major.size     : 5      # major tick size in points
+xtick.minor.size     : 2.5      # minor tick size in points
+xtick.major.width    : 1    # major tick width in points
+xtick.minor.width    : 1    # minor tick width in points
+xtick.color          : k      # color of the tick labels
+xtick.labelsize      : 12  # fontsize of the tick labels
+xtick.direction      : in    # direction: in, out, or inout
+xtick.major.top      : True   # draw x axis top major ticks
+
+ytick.left           : True   # draw ticks on the left side
+ytick.right          : False  # draw ticks on the right side
+ytick.major.size     : 5      # major tick size in points
+ytick.minor.size     : 2.5      # minor tick size in points
+ytick.major.width    : 1    # major tick width in points
+ytick.minor.width    : 1    # minor tick width in points
+ytick.labelsize      : 12 # fontsize of the tick labels
+ytick.direction      : in    # direction: in, out, or inout
+
+
+grid.alpha       :   0.4       # transparency, between 0.0 and 1.0
+
+legend.fontsize: 10
+legend.frameon: True
+legend.numpoints: 1
+
+
+figure.figsize   : 6, 4.0   # figure size in inches
+figure.dpi       : 120      # figure dots per inch
+figure.facecolor: white  # make figure background white
+
+errorbar.capsize : 0             # length of end cap on error bars in pixels
+
+scatter.marker : .               # The default marker type for scatter plots.
+
+savefig.dpi         : 300   # figure dots per inch or 'figure'
+savefig.bbox        : tight # 'tight' or 'standard'.
+
+mathtext.cal : Times:italic
+mathtext.rm  : Times
+mathtext.tt  : monospace
+mathtext.it  : Times:italic
+mathtext.bf  : Times:bold
+mathtext.sf  : Times
+mathtext.fontset : cm ## Should be 'dejavusans' (default),
+                               ## 'dejavuserif', 'cm' (Computer Modern), 'stix',
+                               ## 'stixsans' or 'custom'
+#mathtext.fallback_to_cm : False  ## When True, use symbols from the Computer Modern
+                                 ## fonts when a symbol can not be found in one of
+                                 ## the custom math fonts.
+mathtext.default : regular  # it
+ ## The default font to use for math.
+                       ## Can be any of the LaTeX font names, including
+                       ## the special name "regular" for the same font
+                       ## used in regular text.
