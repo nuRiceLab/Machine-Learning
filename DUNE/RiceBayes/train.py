@@ -4,6 +4,7 @@ import glob
 import random
 import argparse
 import numpy as np
+import pandas as pd
 
 from BNN_model import bayes_model
 from generator_class import DataGenerator
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
     parser.add_argument('--learning_rate', type=float, default=1e-2, help='Learning rate')
     parser.add_argument('--pixel_map_size', type=int, default=200, help='Pixel map size square shape')
-    parser.add_argument('--pixel_maps_dir', type=str, help='Pixel maps directory')
+    parser.add_argument('--pixel_maps', type=str, help='Pre-selected pixel maps ')
     parser.add_argument('--test_name', type=str, default='test', help='name of model and plots')
     args = parser.parse_args()
     
@@ -107,13 +108,14 @@ if __name__ == "__main__":
     dimensions = (args.pixel_map_size, args.pixel_map_size)
     params = {'batch_size':args.batch_size,'dim':dimensions, 'n_channels':n_channels}
     
-    _files = glob.glob(args.pixel_maps_dir)
-    generator = DataGenerator(_files, **params)
+    #_files = glob.glob(args.pixel_maps_dir)
+    df = pd.read_pickle(args.pixel_maps)
+    generator = DataGenerator(df, **params)
     # prepare data
-    data = get_data(args.pixel_maps_dir, generator)
+    #data = get_data(args.pixel_maps_dir, generator)
     
-    print(f'Number of pixel maps for training {len(data)*0.9} and for validation {len(data)*0.1}')
-    partition = {'train': data[:int(.9*len(data))], 'validation': data[int(.9*len(data)):]}
+    partition = {'train': df.iloc[:int(.85*len(df))], 'validation': df.iloc[int(.85*len(df)):]}
+    print(f"====== Number of pixel maps for training {len(partition['train'])} and for validation {len(partition['validation'])}")
     
     #==============================================
     # Model 
@@ -140,9 +142,11 @@ if __name__ == "__main__":
     
     model.fit(train_generator,validation_data=validation_generator,
               epochs=args.num_epochs, callbacks=[lr_scheduler, history_saver])
-
+    
     # for inferences need to save weights
     weights = args.test_name+'.h5'
     model.save_weights(weights)
+    ## !!!!!need to fix this!!!
     #complete_model = args.test_name
     #model.save(complete_model)
+    
