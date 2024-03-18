@@ -18,22 +18,6 @@ from tensorflow.keras.optimizers.legacy import SGD
 gpu_setting = 'y'
 
 
-def get_data(pixel_map_dir, generator):
-    '''
-    Get pixels maps 
-    '''
-    file_list_all = glob.glob(pixel_map_dir)
-    file_list = []
-
-    for f in file_list_all:
-        if generator.get_info(f)['NuPDG'] != 16 and generator.get_info(f)['NuPDG'] != -16 and generator.get_info(f)['NuEnergy'] < 4.0:
-            file_list.append(f)
-
-    random.shuffle(file_list)
-    
-    return file_list
-
-
 class LearningRateSchedulerPlateau(callbacks.Callback):
     '''
     Learning rate scheduler
@@ -97,8 +81,8 @@ def nll(y_true, y_pred):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_epochs', type=int, default=1, help='Number of epochs')
-    parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
-    parser.add_argument('--learning_rate', type=float, default=1e-2, help='Learning rate')
+    parser.add_argument('--batch_size', type=int, default=256, help='Batch size')
+    parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--pixel_map_size', type=int, default=200, help='Pixel map size square shape')
     parser.add_argument('--pixel_maps', type=str, help='Pre-selected pixel maps ')
     parser.add_argument('--test_name', type=str, default='test', help='name of model and plots')
@@ -108,15 +92,12 @@ if __name__ == "__main__":
     dimensions = (args.pixel_map_size, args.pixel_map_size)
     params = {'batch_size':args.batch_size,'dim':dimensions, 'n_channels':n_channels}
     
-    #_files = glob.glob(args.pixel_maps_dir)
     df = pd.read_pickle(args.pixel_maps)
     generator = DataGenerator(df, **params)
-    # prepare data
-    #data = get_data(args.pixel_maps_dir, generator)
     
     partition = {'train': df.iloc[:int(.85*len(df))], 'validation': df.iloc[int(.85*len(df)):]}
     print(f"====== Number of pixel maps for training {len(partition['train'])} and for validation {len(partition['validation'])}")
-    
+    tf.keras.backend.clear_session()
     #==============================================
     # Model 
     #==============================================

@@ -1,13 +1,13 @@
 from functools import partial
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models, optimizers, callbacks
+from tensorflow.keras import layers, models
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers.legacy import SGD
 import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfpl = tfp.layers
 
-num_samples = 1000
+num_samples = 683620
 
 
 def kl_approx(q, p, q_tensor):
@@ -182,7 +182,7 @@ def bayes_model(input_shape=(200,200,3)):
     x = layers.ReLU()(x)
     x = layers.MaxPooling2D(3, strides=2, padding='same')(x)
     
-    num_blocks = 3  # Increase the number of residual blocks
+    num_blocks = 4  # Increase the number of residual blocks
     filters = [32, 64, 128, 256, 512]   # Increase the number of filters in each block
     
     for i in range(num_blocks):
@@ -192,9 +192,9 @@ def bayes_model(input_shape=(200,200,3)):
                           name = 'residual_block'+str(i))
 
     x = tf.keras.layers.GlobalMaxPooling2D()(x)
-    ''' 
+    '''
     x = tfpl.DenseReparameterization(
-        units=128,  # This matches the number of units from the Dense layer
+        units=64,  # This matches the number of units from the Dense layer
         activation='relu',  # Activation can be directly specified here
         kernel_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
         kernel_prior_fn=tfpl.default_multivariate_normal_fn,
@@ -206,8 +206,8 @@ def bayes_model(input_shape=(200,200,3)):
         )(x)
         
     x = tfpl.DenseReparameterization(
-        units=64,  # This matches the number of units from the Dense layer
-        activation='relu',  # Activation can be directly specified here
+        units=32,  # This matches the number of units from the Dense layer
+        activation='sigmoid',  # Activation can be directly specified here
         kernel_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
         kernel_prior_fn=tfpl.default_multivariate_normal_fn,
         bias_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),

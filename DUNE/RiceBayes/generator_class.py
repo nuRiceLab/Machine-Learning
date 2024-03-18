@@ -15,7 +15,7 @@ class DataGenerator(keras.utils.Sequence):
     '''
     
     def __init__(self, df, batch_size, dim, n_channels):
-        # self.files = files
+        
         self.df = df
         self.df_length = len(self.df)
         self.batch_size = batch_size
@@ -131,8 +131,7 @@ class DataGenerator(keras.utils.Sequence):
     
     def __data_generation(self, train_temp, labels_temp):
         # Convert the labels_temp dictionary to a list of tensors
-        #y_list = [labels_temp[key].values for key in labels_temp.keys()]
-        y_list = labels_temp.to_numpy()
-        y_list =  np.vstack(y_list[:, 0])
+        y_list = [labels_temp[key].values for key in labels_temp.keys()]
+        y_list = np.vstack(y_list[0])
         return train_temp, y_list
 
