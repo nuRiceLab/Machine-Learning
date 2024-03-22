@@ -7,7 +7,7 @@ import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfpl = tfp.layers
 
-num_samples = 683620
+num_samples = 1300667
 
 
 def kl_approx(q, p, q_tensor):
@@ -25,20 +25,7 @@ def kl_approx(q, p, q_tensor):
     
     return tf.reduce_mean(q.log_prob(q_tensor) - p.log_prob(q_tensor))
 
-def divergence_fn(q, p, q_tensor, num_samples=num_samples):
-    """
-    Normalizes the KL divergence approximation by the number of samples.
-
-    Args:
-        q (tf.distributions.Distribution): The first distribution.
-        p (tf.distributions.Distribution): The second distribution.
-        q_tensor (tf.Tensor): The tensor to evaluate the log probabilities.
-        num_samples (int): The number of samples for normalization.
-
-    Returns:
-        tf.Tensor: The normalized KL divergence.
-    """
-    return kl_approx(q, p, q_tensor) / num_samples
+divergence_fn = lambda q, p, q_tensor : kl_approx(q, p, q_tensor) / num_samples
 
 
 def prior(dtype, shape, name, trainable, add_variable_fn):
@@ -62,13 +49,11 @@ def prior(dtype, shape, name, trainable, add_variable_fn):
     
     return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
 
-adjusted_divergence_fn = partial(divergence_fn, num_samples=num_samples)
-
 
 def get_convolution_reparameterization(filters, kernel_size, activation, strides = 1,
                                         padding = 'SAME',
                                         prior = prior,
-                                        divergence_fn = adjusted_divergence_fn,
+                                        divergence_fn = divergence_fn,
                                         name = None) -> tfpl.Convolution2DReparameterization:
     """
     Creates a Convolution2DReparameterization layer.
@@ -95,11 +80,11 @@ def get_convolution_reparameterization(filters, kernel_size, activation, strides
             
             kernel_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
             kernel_prior_fn=prior,
-            kernel_divergence_fn=adjusted_divergence_fn,
+            kernel_divergence_fn=divergence_fn,
 
             bias_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
             bias_prior_fn=prior,
-            bias_divergence_fn=adjusted_divergence_fn,
+            bias_divergence_fn=divergence_fn,
             name=name)
 
 
@@ -182,7 +167,7 @@ def bayes_model(input_shape=(200,200,3)):
     x = layers.ReLU()(x)
     x = layers.MaxPooling2D(3, strides=2, padding='same')(x)
     
-    num_blocks = 4  # Increase the number of residual blocks
+    num_blocks = 3  # Increase the number of residual blocks
     filters = [32, 64, 128, 256, 512]   # Increase the number of filters in each block
     
     for i in range(num_blocks):
@@ -223,8 +208,8 @@ def bayes_model(input_shape=(200,200,3)):
         kernel_prior_fn = tfpl.default_multivariate_normal_fn,  
         bias_prior_fn = tfpl.default_multivariate_normal_fn,
         bias_posterior_fn = tfpl.default_mean_field_normal_fn(is_singular=False),
-        kernel_divergence_fn=adjusted_divergence_fn,
-        bias_divergence_fn=adjusted_divergence_fn,
+        kernel_divergence_fn=divergence_fn,
+        bias_divergence_fn=divergence_fn,
         name = 'dense_reparam3')(x)
 
     x = tfpl.CategoricalMixtureOfOneHotCategorical(event_size = 3, num_components = 5, name = 'output')(x)   

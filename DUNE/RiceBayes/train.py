@@ -128,6 +128,6 @@ if __name__ == "__main__":
     weights = args.test_name+'.h5'
     model.save_weights(weights)
     ## !!!!!need to fix this!!!
-    #complete_model = args.test_name
-    #model.save(complete_model)
+    complete_model = args.test_name
+    model.save(complete_model)
     
