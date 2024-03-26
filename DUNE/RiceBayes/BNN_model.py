@@ -1,13 +1,12 @@
 from functools import partial
 import tensorflow as tf
 from tensorflow.keras import layers, models
-from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers.legacy import SGD
 import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfpl = tfp.layers
 
-num_samples = 1300667
+num_samples = 1510865
 
 
 def kl_approx(q, p, q_tensor):
@@ -30,7 +29,7 @@ divergence_fn = lambda q, p, q_tensor : kl_approx(q, p, q_tensor) / num_samples
 
 def prior(dtype, shape, name, trainable, add_variable_fn):
     """
-    Creates an Independent multivariate normal distribution as a prior.
+    Creates an customize multivariate normal distribution as a prior.
 
     Args:
         dtype: The data type of the distribution's parameters.
@@ -42,8 +41,8 @@ def prior(dtype, shape, name, trainable, add_variable_fn):
     Returns:
         tfd.Independent: The Independent multivariate normal distribution.
     """
-    dist = tfd.MultivariateNormalDiag(loc=1.2 * tf.ones(shape),
-                                      scale_diag=3.0*tf.ones(shape))
+    dist = tfd.MultivariateNormalDiag(loc = 1.0*tf.ones(shape),
+                                        scale_diag = 1.5*tf.ones(shape))
     
     batch_ndims = tf.size(dist.batch_shape_tensor())
     
@@ -163,7 +162,7 @@ def bayes_model(input_shape=(200,200,3)):
     inputs = layers.Input(shape=input_shape, name='inputs')
     
     x = get_convolution_reparameterization(16, 3, 'swish')(inputs)
-    x = layers.BatchNormalization()(x)
+    x = layers.BatchNormalization(name='batchnorm_0')(x)
     x = layers.ReLU()(x)
     x = layers.MaxPooling2D(3, strides=2, padding='same')(x)
     
@@ -172,48 +171,23 @@ def bayes_model(input_shape=(200,200,3)):
     
     for i in range(num_blocks):
         x = residual_block(x, filters[i], kernel_size = 3,
-                          padding = 'same', activation = tf.nn.silu,
+                          padding = 'same', activation = None,
                           pool_size = (2, 2), strides = (1, 1),
                           name = 'residual_block'+str(i))
 
     x = tf.keras.layers.GlobalMaxPooling2D()(x)
-    '''
+    
     x = tfpl.DenseReparameterization(
-        units=64,  # This matches the number of units from the Dense layer
-        activation='relu',  # Activation can be directly specified here
-        kernel_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
-        kernel_prior_fn=tfpl.default_multivariate_normal_fn,
-        bias_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
-        bias_prior_fn=tfpl.default_multivariate_normal_fn,
-        kernel_divergence_fn=adjusted_divergence_fn,
-        bias_divergence_fn=adjusted_divergence_fn,
-        name='dense_reparam1'
-        )(x)
-        
-    x = tfpl.DenseReparameterization(
-        units=32,  # This matches the number of units from the Dense layer
-        activation='sigmoid',  # Activation can be directly specified here
-        kernel_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
-        kernel_prior_fn=tfpl.default_multivariate_normal_fn,
-        bias_posterior_fn=tfpl.default_mean_field_normal_fn(is_singular=False),
-        bias_prior_fn=tfpl.default_multivariate_normal_fn,
-        kernel_divergence_fn=adjusted_divergence_fn,
-        bias_divergence_fn=adjusted_divergence_fn,
-        name='dense_reparam2'
-        )(x)
-    '''           
-    x = tfpl.DenseReparameterization(
-        units = tfpl.CategoricalMixtureOfOneHotCategorical.params_size(3, 5), activation = None,
+        units = tfpl.CategoricalMixtureOfOneHotCategorical.params_size(3, 1), activation = None,
         kernel_posterior_fn = tfpl.default_mean_field_normal_fn(is_singular=False),
         kernel_prior_fn = tfpl.default_multivariate_normal_fn,  
         bias_prior_fn = tfpl.default_multivariate_normal_fn,
         bias_posterior_fn = tfpl.default_mean_field_normal_fn(is_singular=False),
         kernel_divergence_fn=divergence_fn,
-        bias_divergence_fn=divergence_fn,
-        name = 'dense_reparam3')(x)
-
-    x = tfpl.CategoricalMixtureOfOneHotCategorical(event_size = 3, num_components = 5, name = 'output')(x)   
-
+        name = 'dense_reparam1')(x)
+       
+    x = tfpl.CategoricalMixtureOfOneHotCategorical(event_size = 3, num_components = 1, name = 'output')(x)   
+    
     model = models.Model(inputs, outputs=x, name='Rice_BNN')
     
     return model

@@ -10,8 +10,8 @@ from BNN_model import bayes_model
 from generator_class import DataGenerator
 
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models, optimizers, callbacks
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras import layers, models, optimizers, callbacks
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.optimizers.legacy import SGD
 
 #GPU/CPU Selection
@@ -22,7 +22,7 @@ class LearningRateSchedulerPlateau(callbacks.Callback):
     '''
     Learning rate scheduler
     '''
-    def __init__(self, factor=0.5, patience=5, min_lr=1e-6):
+    def __init__(self, factor=0.5, patience=5, min_lr=1e-4):
         super(LearningRateSchedulerPlateau, self).__init__()
         self.factor = factor          # Factor by which the learning rate will be reduced
         self.patience = patience      # Number of epochs with no improvement after which learning rate will be reduced
@@ -81,8 +81,8 @@ def nll(y_true, y_pred):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_epochs', type=int, default=1, help='Number of epochs')
-    parser.add_argument('--batch_size', type=int, default=256, help='Batch size')
-    parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate')
+    parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
+    parser.add_argument('--learning_rate', type=float, default=1e-2, help='Learning rate')
     parser.add_argument('--pixel_map_size', type=int, default=200, help='Pixel map size square shape')
     parser.add_argument('--pixel_maps', type=str, help='Pre-selected pixel maps ')
     parser.add_argument('--test_name', type=str, default='test', help='name of model and plots')
@@ -117,12 +117,14 @@ if __name__ == "__main__":
     lr_scheduler = LearningRateSchedulerPlateau(factor=0.5, patience=5, min_lr=1e-6)
     history_filename = args.test_name+'_training_history.json'
     history_saver = SaveHistoryToFile(history_filename)
+    early_stopper = EarlyStopping(monitor='val_loss', patience=3, min_delta=0.01, mode='min',
+                                  restore_best_weights=True)
 
     train_generator = DataGenerator(partition['train'], **params)
     validation_generator = DataGenerator(partition['validation'], **params)    
     
     model.fit(train_generator,validation_data=validation_generator,
-              epochs=args.num_epochs, callbacks=[lr_scheduler, history_saver])
+              epochs=args.num_epochs, callbacks=[lr_scheduler, history_saver, early_stopper])
     
     # for inferences need to save weights
     weights = args.test_name+'.h5'
