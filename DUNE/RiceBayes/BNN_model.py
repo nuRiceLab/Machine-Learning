@@ -1,3 +1,4 @@
+import numpy as np
 from functools import partial
 import tensorflow as tf
 from tensorflow.keras import layers, models
@@ -48,6 +49,21 @@ def prior(dtype, shape, name, trainable, add_variable_fn):
     
     return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
 
+def customize_prior(dtype, shape, name, trainable, add_variable_fn):
+    """
+    Creates an customize normal distribution as a prior.
+
+    """
+    # Use weights from ResCNN as prior
+    prior_1stconv2d = np.load('/home/higuera/CNN/conv2d_weights_RiceRes.npy')
+    
+    mean = prior_1stconv2d  
+    
+    dist = tfd.MultivariateNormalDiag(loc = mean,
+                                        scale_diag = 1.5*tf.ones(shape))
+    batch_ndims = tf.size(dist.batch_shape_tensor())
+    
+    return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
 
 def get_convolution_reparameterization(filters, kernel_size, activation, strides = 1,
                                         padding = 'SAME',
@@ -158,10 +174,12 @@ def bayes_model(input_shape=(200,200,3)):
     Returns:
         tf.keras.Model: The constructed Keras model.
     """
-    
+
     inputs = layers.Input(shape=input_shape, name='inputs')
     
-    x = get_convolution_reparameterization(16, 3, 'swish')(inputs)
+    x = get_convolution_reparameterization(32, 7, 'swish', strides=2, 
+                                           prior=customize_prior)(inputs)
+    
     x = layers.BatchNormalization(name='batchnorm_0')(x)
     x = layers.ReLU()(x)
     x = layers.MaxPooling2D(3, strides=2, padding='same')(x)

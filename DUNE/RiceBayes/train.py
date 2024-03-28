@@ -117,7 +117,7 @@ if __name__ == "__main__":
     lr_scheduler = LearningRateSchedulerPlateau(factor=0.5, patience=5, min_lr=1e-6)
     history_filename = args.test_name+'_training_history.json'
     history_saver = SaveHistoryToFile(history_filename)
-    early_stopper = EarlyStopping(monitor='val_loss', patience=3, min_delta=0.01, mode='min',
+    early_stopper = EarlyStopping(monitor='val_loss', patience=3, min_delta=0.001, mode='min',
                                   restore_best_weights=True)
 
     train_generator = DataGenerator(partition['train'], **params)
