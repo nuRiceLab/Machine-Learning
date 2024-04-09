@@ -7,7 +7,7 @@ import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfpl = tfp.layers
 
-num_samples = 1510865
+num_samples = 2023317
 
 
 def kl_approx(q, p, q_tensor):
@@ -184,7 +184,7 @@ def bayes_model(input_shape=(200,200,3)):
     x = layers.ReLU()(x)
     x = layers.MaxPooling2D(3, strides=2, padding='same')(x)
     
-    num_blocks = 3  # Increase the number of residual blocks
+    num_blocks = 4  # Increase the number of residual blocks
     filters = [32, 64, 128, 256, 512]   # Increase the number of filters in each block
     
     for i in range(num_blocks):

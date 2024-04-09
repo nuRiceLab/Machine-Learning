@@ -63,7 +63,8 @@ class SaveHistoryToFile(callbacks.Callback):
         
         with open(self.file_path, 'w') as file:
             json.dump(self.history, file)
-   
+
+
  
 def nll(y_true, y_pred):
     """
@@ -110,8 +111,9 @@ if __name__ == "__main__":
 
     model.compile(optimizer=sgd_optimizer, loss=nll, metrics=['accuracy'])
     
-    checkpoint_filepath = '/Users/aaronhiguera/HEP/DUNE/Machine-Learning/DUNE/RiceBayes/'
-    checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath, save_best_only=False)
+    checkpoint_filepath = '/home/higuera/RiceBNN/'
+    checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath,
+                                          save_best_only=True, save_weights_only=True, monitor='val_loss')
     
     # Define the learning rate scheduler callback and history saver
     lr_scheduler = LearningRateSchedulerPlateau(factor=0.5, patience=5, min_lr=1e-6)
@@ -124,7 +126,7 @@ if __name__ == "__main__":
     validation_generator = DataGenerator(partition['validation'], **params)    
     
     model.fit(train_generator,validation_data=validation_generator,
-              epochs=args.num_epochs, callbacks=[lr_scheduler, history_saver, early_stopper])
+              epochs=args.num_epochs, callbacks=[lr_scheduler, history_saver, early_stopper, checkpoint_callback])
     
     # for inferences need to save weights
     weights = args.test_name+'.h5'
