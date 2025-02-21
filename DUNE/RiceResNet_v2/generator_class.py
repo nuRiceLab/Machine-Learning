@@ -88,8 +88,7 @@ class DataGenerator(keras.utils.Sequence):
         
         # data_subset = self.df.iloc[idxs[0]:idxs[1]]
         labels = ['flavour']
-        data_label_dict = data_subset[labels]
-
+        data_label_dict = data_subset[labels].to_numpy()
         # Use ThreadPoolExecutor for parallel file reading
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Map the file reading function to each file in parallel
@@ -128,12 +127,7 @@ class DataGenerator(keras.utils.Sequence):
     def on_epoch_end(self):
         'Updates indexes after each epoch'
         # Shuffle indices at the end of each epoch
-        # self.indexes = np.arange(len(self.df))
         np.random.shuffle(self.indexes)
     
     def __data_generation(self, train_temp, labels_temp):
-        # Convert the labels_temp dictionary to a list of tensors
-        # y_list = [labels_temp[key] for key in labels_temp.keys()]
-        y_list = [labels_temp[key].values for key in labels_temp.keys()]
-        
-        return train_temp, y_list
+        return train_temp, labels_temp
