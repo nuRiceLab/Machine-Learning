@@ -99,10 +99,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', type=float, help='Learning rate')
     parser.add_argument('--pixel_map_size', type=int, help='Pixel map size square shape')
     parser.add_argument('--test_name', type=str, help='name of model and plots')
-    # parser.add_argument('--is_preprocessed', type=bool, default=False, help='is the data already preprocessed')
     parser.add_argument('--listname', type=str, default='None', help='preprocessed data file name (df too)')
-    ### CHANGE PATH 
-    parser.add_argument('--path_checkpoint', type=str, default='/home/', help='where you want to save the model after epoch, also where to load the weights before training. ')
 
     args = parser.parse_args()
     
@@ -159,8 +156,6 @@ if __name__ == "__main__":
 
     # Create the model
     model = models.Model(inputs, outputs)
-    #checkpoint_filepath = args.path_checkpoint
-    #checkpoint_callback = ModelCheckpoint(filepath=checkpoint_filepath, save_best_only=False)
     # Define the learning rate scheduler callback and history saver
     lr_scheduler = LearningRateSchedulerPlateau(factor=0.5, patience=5, min_lr=1e-6)
     history_saver = SaveHistoryToFile(history_filename)
@@ -181,5 +176,8 @@ if __name__ == "__main__":
     history = model.fit(train_generator,validation_data=validation_generator,
                         epochs=args.num_epochs, callbacks=[lr_scheduler, history_saver])
 
-    model.save('my_model.keras')       
-    model.export('saved_model/my_model')
+    model_name = 'saved_model/'+args.test_name
+    model_name_keras = args.test_name+'.keras'
+    model.save(model_name_keras)
+
+    model.export(model_name)
