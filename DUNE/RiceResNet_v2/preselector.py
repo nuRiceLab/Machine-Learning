@@ -6,14 +6,18 @@ from tqdm import tqdm
 from generator_class import DataGenerator
 
 def get_info(file):
-    with open(file, 'rb') as info_file:
-        info = info_file.readlines()
-        truth = {}
-        truth['NuPDG'] = int(info[7].strip())
-        truth['NuEnergy'] = float(info[1])
-        truth['LepEnergy'] = float(info[2])
-        truth['Interaction'] = int(info[0].strip()) % 4
-        return truth
+    try:
+        with open(file, 'rb') as info_file:
+            info = info_file.readlines()
+            truth = {}
+            truth['NuPDG'] = int(info[7].strip())
+            truth['NuEnergy'] = float(info[1])
+            truth['LepEnergy'] = float(info[2])
+            truth['Interaction'] = int(info[0].strip()) % 4
+            return truth
+    except Exception as e:
+        print(f"Error processing file: {file}, skipping. Error: {e}")
+        return None  # Return None to indicate an issue with this file
 
 def get_data(pixel_map_dir):
     '''
@@ -23,7 +27,7 @@ def get_data(pixel_map_dir):
     file_list_all = glob.glob(map_dir)
     file_list = []    
     for f in tqdm(file_list_all):
-        if get_info(f)['NuPDG'] != 16 and get_info(f)['NuPDG'] != -16:
+        if get_info(f)['NuPDG'] != 16 and get_info(f)['NuPDG'] != -16 and get_info(f)['NuEnergy'] <20.0 :
             file_list.append(f)
 
     return file_list
