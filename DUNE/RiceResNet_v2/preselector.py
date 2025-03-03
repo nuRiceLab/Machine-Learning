@@ -7,6 +7,10 @@ from generator_class import DataGenerator
 
 def get_info(file):
     try:
+        gz_file = file.replace('.info', '') + '.gz'
+        if not os.path.exists(gz_file):
+            raise FileNotFoundError(f"Missing required file: {gz_file}")
+        
         with open(file, 'rb') as info_file:
             info = info_file.readlines()
             truth = {}
@@ -27,8 +31,10 @@ def get_data(pixel_map_dir):
     file_list_all = glob.glob(map_dir)
     file_list = []    
     for f in tqdm(file_list_all):
-        if get_info(f)['NuPDG'] != 16 and get_info(f)['NuPDG'] != -16 and get_info(f)['NuEnergy'] <20.0 :
-            file_list.append(f)
+        info = get_info(f)
+        if info is not None:
+            if get_info(f)['NuPDG'] != 16 and get_info(f)['NuPDG'] != -16 and get_info(f)['NuEnergy'] <20.0 :
+                file_list.append(f)
 
     return file_list
 
