@@ -5,12 +5,24 @@ import pandas as pd
 from tqdm import tqdm
 from generator_class_atmo_3output import DataGenerator_3output_train
 import numpy as np
+import gzip
+import zlib
 
 def get_info(file):
+
     try:
         gz_file = file.replace('.info', '') + '.gz'
         if not os.path.exists(gz_file):
             raise FileNotFoundError(f"Missing required file: {gz_file}")
+        
+        # Check if the gz file is corrupted
+                # Check if the gz file is corrupted using zlib
+        try:
+            with open(gz_file, 'rb') as f:
+                file_content = f.read()
+                pixels_map = np.frombuffer(zlib.decompress(file_content), dtype=np.uint8)
+        except (zlib.error, OSError) as zlib_error:
+            raise ValueError(f"Corrupted gzip file: {gz_file}, skipping. Error: {zlib_error}")
         
         with open(file, 'rb') as info_file:
             info = info_file.readlines()
