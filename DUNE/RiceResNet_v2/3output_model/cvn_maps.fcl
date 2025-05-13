@@ -1,0 +1,143 @@
+Last login: Mon May 12 14:38:54 on ttys002
+(base) aaronhiguera@Aarons-Air-3 ~ % dune12
+                              NOTICE TO USERS
+
+       This  is a Federal computer (and/or it is directly connected to a
+       Fermilab local network system) that is the property of the United
+       States Government.  It is for authorized use only.  Users (autho-
+       rized or unauthorized) have no explicit or  implicit  expectation
+       of privacy.
+
+       Any  or  all uses of this system and all files on this system may
+       be intercepted, monitored, recorded,  copied, audited, inspected,
+       and  disclosed  to authorized site, Department of Energy  and law
+       enforcement personnel, as  well as authorized officials of  other
+       agencies,  both  domestic and foreign.  By using this system, the
+       user consents to such interception, monitoring, recording,  copy-
+       ing,  auditing,  inspection,  and disclosure at the discretion of
+       authorized site or Department of Energy personnel.
+
+       Unauthorized or improper use of this system may result in  admin-
+       istrative  disciplinary  action and civil and criminal penalties.
+       By continuing to use this system you indicate your  awareness  of
+       and  consent to these terms and conditions of use.  LOG OFF IMME-
+       DIATELY if you do not agree to  the  conditions  stated  in  this
+       warning.
+
+       Fermilab  policy  and  rules for computing, including appropriate
+       use, may be found at http://www.fnal.gov/cd/main/cpolicy.html
+Last login: Mon May 12 10:47:31 2025 from 168.5.22.75
+------------------------------------------------------------------------------
+                     ..::Powered by SCF-SSI::..                      
+
+   Hostname: dunegpvm12.fnal.gov         OS Release: Alma Linux 9.5            
+         IP: 131.225.161.72                  Subnet: 255.255.255.0             
+
+     Kernel: 5.14.0-503.35.1                   Arch: x86_64                    
+        RAM: 11.43 GiB                         Swap: 2.00 GiB                  
+      Cores: 4                              Virtual: kvm                       
+
+ SSH Logins: 3                             Load Avg: 1.05 1.18 1.47            
+
+       Help: https://ssiwiki.fnal.gov/wiki/Interactive_Server_Facility         
+------------------------------------------------------------------------------
+<dunegpvm12.fnal.gov> cd /exp/dune/data/users/higuera/CNN/
+<dunegpvm12.fnal.gov> ls
+atmo_model_tf_2_11  checks  CNN_v2  scans
+<dunegpvm12.fnal.gov> cd CNN_v2/
+<dunegpvm12.fnal.gov> ls
+100_files.txt
+atmnu_max_weighted_randompolicy_dune10kt_1x2x6_1748_0_20231024T141336Z_gen_g4_detsim_hitreco_reco2_ana.root
+atmo_ana_wreco2_lbl_model.root
+atmo_ana_wreco2_new_model.root
+atmo_ana_wreco2_new_model_sample_5638_500_1000.root
+atmo_ana_wreco2_new_model_sample_5638_500.root
+debug.log
+fcls
+files.txt
+filtered_replicas.txt
+get_paths.sh
+jobAtmoAnalysis.fcl
+log
+log_5637
+myanafcl.tar
+myreco.tar
+_reco
+reco1_files.txt
+reco2_5637.txt
+reco2_5638.txt
+reco2_files.txt
+reco5638_500-1000.txt
+reco5638_500.txt
+replicas.txt
+wflows
+<dunegpvm12.fnal.gov> cd fcls/
+<dunegpvm12.fnal.gov> ls
+atmnu_max_weighted_randompolicy_dune10kt_1x2x6_1749_1_20231024T142459Z_gen_g4_detsim_hitreco_reco2.root
+atmnu_max_weighted_randompolicy_dune10kt_1x2x6_50231162_498_20231118T222014Z_gen_g4_detsim_hitreco_reco2.root
+atmo_analysis_config.fcl
+atmo_ana_wreco2_2.root
+atmo_reco2_lbl_model.fcl
+atmo_reco2_lbl_model.tar
+atmo_reco2_newCVN_model.fcl
+atmo_reco2_newCVN_model.tar
+atmo_reco_v2.fcl
+atmo_v2_maps.fcl
+atmo_v2_maps.tar
+debug.log
+debugprod.log
+jobAtmoAnalysis.fcl
+reco2_hist.root
+RootOutput-3133-483d-b733-1fc9.root
+test
+TFileService-addc-5a1f-6779-dbc1.root
+<dunegpvm12.fnal.gov> vi atmo_v2_maps.fcl 
+
+{
+  # Load the service that manages root files for histograms.
+  TFileService: { fileName: "potinfo_r%r-r%R_s%s-s%S_hist.root" }
+  TimeTracker:       {}
+  RandomNumberGenerator: {}
+  MemoryTracker:         { } # default is one
+  message:      @local::dune_message_services_prod
+  FileCatalogMetadata:  @local::art_file_catalog_mc
+                        @table::dunefd_simulation_services
+  Geometry:             @local::dune10kt_1x2x6_v5_refactored_geo
+}
+
+source:
+{
+  module_type: RootInput
+  maxEvents: -1
+}
+
+physics:
+{
+  producers:
+  {
+    cvnmap:      @local::standard_cvnmapper
+  }
+  analyzers:
+  {
+    zlib:        @local::standard_cvnzlibmaker
+  }
+
+  map:           [ cvnmap ]
+  ana:           [ zlib ]
+  end_paths:     [ ana ]
+}
+
+
+# CVNZlibMapper configuration
+physics.analyzers.zlib.PlaneLimit: 300
+physics.analyzers.zlib.TDCLimit: 300
+physics.analyzers.zlib.ReverseViews: [false,false,false]
+physics.analyzers.zlib.EnergyNueLabel: ""
+physics.analyzers.zlib.EnergyNumuLabel: ""
+physics.analyzers.zlib.EnergyNutauLabel: ""
+
+# CVNMapper configuration
+physics.producers.cvnmap.HitsModuleLabel: "hitfd"
+physics.producers.cvnmap.TdcWidth: 300
+physics.producers.cvnmap.TimeResolution: 1600
+physics.producers.cnvmap.ReverseViews: [false,false,false]
