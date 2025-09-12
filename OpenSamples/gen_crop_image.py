@@ -90,10 +90,9 @@ def save_all_crops_one_file(gen, out_path="cropped_all.npz", pad_value=0.0):
 
     # ------- NPZ path (keep in memory then write once) -------
     X_all, y_all = [], []
-    for b in range(2):
+    for b in range(len(gen)):
             
         p, y, info = gen[b]      # p:(B,P,W,T), y:(B,), info:(B, ...)
-        print(info)
         p = np.asarray(p); y = np.asarray(y)
         B, P, W, T = p.shape
         for i in range(B):
@@ -150,7 +149,7 @@ def main():
     )
 
     # Example: peek one batch size only (no training here)
-    print(f"Generator ready. Batches: {len(gen)}; batch_size: {args.batch_size}")
+    print(f"Generator, cropping pixel maps. Batches: {len(gen)}; batch_size: {args.batch_size}")
     save_all_crops_one_file(gen, out_path=str(Path(args.output).expanduser()))
     
 if __name__ == "__main__":
